@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Value & Investment Planner</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles for a modern UI */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom slider thumb */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6; /* blue-600 */
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -6px; /* Center thumb on track */
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        input[type="range"]:hover::-webkit-slider-thumb {
+            background: #2563eb; /* blue-700 */
+        }
+        input[type="range"]:hover::-moz-range-thumb {
+            background: #2563eb;
+        }
+
+        /* Custom active tab style */
+        .tab-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+        }
+
+        /* Donut chart styling */
+        .donut-chart {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            /* The conic-gradient background will be set by JS */
+            background: conic-gradient(
+                #3b82f6 0deg 180deg,  /* Invested (blue-600) */
+                #10b981 180deg 360deg /* Gains (green-500) */
+            );
+            transition: background 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* The "hole" in the donut */
+        .donut-chart::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75%;
+            height: 75%;
+            background: #111827; /* gray-900 */
+            border-radius: 50%;
+        }
+        
+        /* Text inside the donut */
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #d1d5db; /* gray-300 */
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-gray-200 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white shadow-sm">
+                Future Value <span class="text-blue-400">&</span> Investment Planner
+            </h1>
+            <p class="text-lg text-gray-400 mt-2">
+                Plan your SIP, Lumpsum, and SWP with inflation-adjusted returns.
+            </p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="flex justify-center bg-gray-800/50 backdrop-blur-sm rounded-lg p-2 max-w-lg mx-auto mb-8 shadow-lg">
+            <button data-target="sip-calc" class="tab-btn active w-1/3 py-2 px-4 font-semibold rounded-md transition-all duration-300">
+                SIP
+            </button>
+            <button data-target="lumpsum-calc" class="tab-btn w-1/3 py-2 px-4 font-semibold rounded-md transition-all duration-300 text-gray-400 hover:text-white">
+                Lumpsum
+            </button>
+            <button data-target="swp-calc" class="tab-btn w-1/3 py-2 px-4 font-semibold rounded-md transition-all duration-300 text-gray-400 hover:text-white">
+                SWP
+            </button>
+        </nav>
+
+        <!-- Main Calculator Body -->
+        <main>
+            <!-- ======================= -->
+            <!--    SIP Calculator       -->
+            <!-- ======================= -->
+            <div id="sip-calc" class="calc-page grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- SIP Inputs -->
+                <div class="lg:col-span-1 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">SIP (Monthly)</h2>
+                    
+                    <!-- Investment Type (from prompt) -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Investment Type</label>
+                        <div class="flex bg-gray-800 rounded-lg p-1">
+                            <button class="w-1/2 bg-blue-600 text-white rounded-md py-1.5 text-sm font-medium">Monthly</button>
+                            <button class="w-1/2 text-gray-400 rounded-md py-1.5 text-sm font-medium" onclick="switchTab('lumpsum-calc')">Lumpsum</button>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Investment -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="sipAmount" class="text-sm font-medium text-gray-300">Monthly Investment</label>
+                            <input type="number" id="sipAmountNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10000">
+                        </div>
+                        <input type="range" id="sipAmountSlider" min="500" max="100000" step="500" value="10000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Expected Return -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="sipReturn" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
+                            <input type="number" id="sipReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="12" min="1" max="30" step="0.5">
+                            <span class="text-gray-400 text-sm ml-2">%</span>
+                        </div>
+                        <input type="range" id="sipReturnSlider" min="1" max="30" step="0.5" value="12" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Investment Period -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="sipYears" class="text-sm font-medium text-gray-300">Investment Period</label>
+                            <input type="number" id="sipYearsNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10" min="1" max="40">
+                            <span class="text-gray-400 text-sm ml-2">Yrs</span>
+                        </div>
+                        <input type="range" id="sipYearsSlider" min="1" max="40" step="1" value="10" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    
+                    <!-- Country & Inflation -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="mb-4">
+                            <label for="sipCountry" class="block text-sm font-medium text-gray-300 mb-1">Country</label>
+                            <select id="sipCountry" class="w-full bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 focus:ring-blue-500 focus:border-blue-500">
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <!-- UPDATED: Inflation display, not input -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Inflation Rate</label>
+                            <div class="flex items-center bg-gray-800 rounded-md p-1.5 h-[34px]">
+                                <span id="sipInflationRate" class="text-lg font-medium text-white">0.0</span>
+                                <span class="text-gray-400 text-sm ml-2">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIP Results -->
+                <div class="lg:col-span-2 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">Your Results</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Chart -->
+                        <div class="md:col-span-1 flex flex-col items-center justify-center">
+                            <div class="donut-chart" id="sipChart">
+                                <div class="chart-center-text">
+                                    <span class="text-xs">Gains</span>
+                                    <div id="sipGainsPercent" class="text-2xl font-bold text-green-400">0%</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4">
+                                <div class="flex items-center text-sm">
+                                    <span class="w-3 h-3 rounded-full bg-blue-600 mr-2"></span>
+                                    <span>Invested</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                                    <span>Gains</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Numbers -->
+                        <div class="md:col-span-2">
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                                    <span class="text-gray-400">Total Invested</span>
+                                    <span id="sipInvested" class="font-medium text-white">₹ 0</span>
+                                </div>
+                                <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                                    <span class="text-gray-400">Total Gains</span>
+                                    <span id="sipGains" class="font-medium text-green-400">₹ 0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-800/50 rounded-lg p-4 mb-4">
+                                <div class="text-sm text-gray-300 mb-1">Future Value (Maturity)</div>
+                                <div id="sipFutureValue" class="text-4xl lg:text-5xl font-extrabold text-blue-400">₹ 0</div>
+                            </div>
+                            
+                            <div class="bg-yellow-900/30 rounded-lg p-4 border border-yellow-700/50">
+                                <div class="text-sm text-yellow-300 mb-1">Purchasing Power (in Today's Value)</div>
+                                <div id="sipRealValue" class="text-2xl font-bold text-yellow-300">₹ 0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inflation Note -->
+                    <div id="inflation-note-sip" class="mt-6 bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 p-4 rounded-md text-sm">
+                        <!-- Content populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!--   Lumpsum Calculator    -->
+            <!-- ======================= -->
+            <div id="lumpsum-calc" class="calc-page hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Lumpsum Inputs -->
+                <div class="lg:col-span-1 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">Lumpsum (Date End Value)</h2>
+                    
+                    <!-- Investment Type -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Investment Type</label>
+                        <div class="flex bg-gray-800 rounded-lg p-1">
+                            <button class="w-1/2 text-gray-400 rounded-md py-1.5 text-sm font-medium" onclick="switchTab('sip-calc')">Monthly</button>
+                            <button class="w-1/2 bg-blue-600 text-white rounded-md py-1.5 text-sm font-medium">Lumpsum</button>
+                        </div>
+                    </div>
+
+                    <!-- Principal Amount -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="lumpsumAmount" class="text-sm font-medium text-gray-300">Principal Amount</label>
+                            <input type="number" id="lumpsumAmountNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="1000000">
+                        </div>
+                        <input type="range" id="lumpsumAmountSlider" min="10000" max="10000000" step="10000" value="1000000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Expected Return -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="lumpsumReturn" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
+                            <input type="number" id="lumpsumReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="12" min="1" max="30" step="0.5">
+                            <span class="text-gray-400 text-sm ml-2">%</span>
+                        </div>
+                        <input type="range" id="lumpsumReturnSlider" min="1" max="30" step="0.5" value="12" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="lumpsumStartDate" class="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
+                            <input type="date" id="lumpsumStartDate" class="w-full bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5">
+                        </div>
+                        <div>
+                            <label for="lumpsumEndDate" class="block text-sm font-medium text-gray-300 mb-1">End Date</label>
+                            <input type="date" id="lumpsumEndDate" class="w-full bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5">
+                        </div>
+                    </div>
+                    <div class="text-center text-sm text-blue-300 mb-4 -mt-2">
+                        Total Period: <span id="lumpsumYearsText" class="font-medium">10.00 Years</span>
+                    </div>
+
+                    <!-- Country & Inflation -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="mb-4">
+                            <label for="lumpsumCountry" class="block text-sm font-medium text-gray-300 mb-1">Country</label>
+                            <select id="lumpsumCountry" class="w-full bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 focus:ring-blue-500 focus:border-blue-500">
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <!-- UPDATED: Inflation display, not input -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Inflation Rate</label>
+                            <div class="flex items-center bg-gray-800 rounded-md p-1.5 h-[34px]">
+                                <span id="lumpsumInflationRate" class="text-lg font-medium text-white">0.0</span>
+                                <span class="text-gray-400 text-sm ml-2">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lumpsum Results -->
+                <div class="lg:col-span-2 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">Your Results (Date End Value)</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Chart -->
+                        <div class="md:col-span-1 flex flex-col items-center justify-center">
+                            <div class="donut-chart" id="lumpsumChart">
+                                <div class="chart-center-text">
+                                    <span class="text-xs">Gains</span>
+                                    <div id="lumpsumGainsPercent" class="text-2xl font-bold text-green-400">0%</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4">
+                                <div class="flex items-center text-sm">
+                                    <span class="w-3 h-3 rounded-full bg-blue-600 mr-2"></span>
+                                    <span>Invested</span>
+                                </div>
+                                <div class="flex items-center text-sm">
+                                    <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                                    <span>Gains</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Numbers -->
+                        <div class="md:col-span-2">
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                                    <span class="text-gray-400">Amount Invested</span>
+                                    <span id="lumpsumInvested" class="font-medium text-white">₹ 0</span>
+                                </div>
+                                <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                                    <span class="text-gray-400">Total Gains</span>
+                                    <span id="lumpsumGains" class="font-medium text-green-400">₹ 0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-800/50 rounded-lg p-4 mb-4">
+                                <div class="text-sm text-gray-300 mb-1">Future Value (at End Date)</div>
+                                <div id="lumpsumFutureValue" class="text-4xl lg:text-5xl font-extrabold text-blue-400">₹ 0</div>
+                            </div>
+                            
+                            <div class="bg-yellow-900/30 rounded-lg p-4 border border-yellow-700/50">
+                                <div class="text-sm text-yellow-300 mb-1">Purchasing Power (in Today's Value)</div>
+                                <div id="lumpsumRealValue" class="text-2xl font-bold text-yellow-300">₹ 0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Inflation Note -->
+                    <div id="inflation-note-lumpsum" class="mt-6 bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 p-4 rounded-md text-sm">
+                        <!-- Content populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!--    SWP Calculator       -->
+            <!-- ======================= -->
+            <div id="swp-calc" class="calc-page hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- SWP Inputs -->
+                <div class="lg:col-span-1 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">SWP (Withdrawal)</h2>
+                    
+                    <!-- Total Investment (Corpus) -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="swpCorpus" class="text-sm font-medium text-gray-300">Total Investment (Corpus)</label>
+                            <input type="number" id="swpCorpusNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10000000">
+                        </div>
+                        <input type="range" id="swpCorpusSlider" min="100000" max="100000000" step="100000" value="10000000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Monthly Withdrawal -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="swpWithdrawal" class="text-sm font-medium text-gray-300">Monthly Withdrawal</label>
+                            <input type="number" id="swpWithdrawalNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="50000">
+                        </div>
+                        <input type="range" id="swpWithdrawalSlider" min="1000" max="500000" step="1000" value="50000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Expected Return -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="swpReturn" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
+                            <input type="number" id="swpReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="8" min="1" max="20" step="0.5">
+                            <span class="text-gray-400 text-sm ml-2">%</span>
+                        </div>
+                        <input type="range" id="swpReturnSlider" min="1" max="20" step="0.5" value="8" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- SWP Results -->
+                <div class="lg:col-span-2 bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                    <h2 class="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-2">How Long Will Your Money Last?</h2>
+                    
+                    <div class="text-center bg-gray-800/50 rounded-lg p-6 mb-6">
+                        <div class="text-lg text-gray-300 mb-2">Your corpus will last for:</div>
+                        <div id="swpDuration" class="text-4xl lg:text-5xl font-extrabold text-blue-400">
+                            0 Years, 0 Months
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                            <span class="text-gray-400">Initial Corpus</span>
+                            <span id="swpInitialCorpus" class="font-medium text-white">₹ 0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                            <span class="text-gray-400">Monthly Withdrawal</span>
+                            <span id="swpMonthlyAmount" class="font-medium text-white">₹ 0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-lg py-2 border-b border-white/10">
+                            <span class="text-gray-400">Total Amount Withdrawn</span>
+                            <span id="swpTotalWithdrawn" class="font-medium text-green-400">₹ 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-blue-900/30 border-l-4 border-blue-400 text-blue-200 p-4 rounded-md text-sm">
+                        <strong>Note:</strong> This calculation assumes a constant rate of return and does not account for inflation on your withdrawals. For a real-world scenario, you would likely need to increase your withdrawal amount annually to keep up with inflation, which would shorten the lifespan of your corpus.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Constants & Data ---
+
+        // This object maps CSV country names to metadata (currency, locale, code)
+        // This is necessary because the CSV only provides the inflation rate.
+        // const countryMetadata = { ... }; // REMOVED
+
+        // This will be populated by fetching the CSV
+        // let INFLATION_DATA = {}; // REMOVED
+
+        // NEW: Hard-coded inflation data, combining CSV rates with formatting metadata
+        const INFLATION_DATA = {
+            "IN": { name: "India (IN)", rate: 2.1, currency: "INR", locale: "en-IN" },
+            "US": { name: "United States (US)", rate: 3.5, currency: "USD", locale: "en-US" }, // Rate from original file, not in snippet
+            "GB": { name: "United Kingdom (GB)", rate: 4.0, currency: "GBP", locale: "en-GB" }, // Rate from original file, not in snippet
+            "CA": { name: "Canada (CA)", rate: 1.9, currency: "CAD", locale: "en-CA" },
+            "AU": { name: "Australia (AU)", rate: 2.4, currency: "AUD", locale: "en-AU" },
+            "DE": { name: "Germany (DE)", rate: 5.0, currency: "EUR", locale: "de-DE" }, // Rate from original file, not in snippet
+            "JP": { name: "Japan (JP)", rate: 3.3, currency: "JPY", locale: "ja-JP" },
+            "CN": { name: "China (CN)", rate: 0.1, currency: "CNY", locale: "zh-CN" },
+            "ZA": { name: "South Africa (ZA)", rate: 5.5, currency: "ZAR", locale: "en-ZA" }, // Rate from original file, not in snippet
+            "BR": { name: "Brazil (BR)", rate: 5.35, currency: "BRL", locale: "pt-BR" },
+            
+            // Adding other countries from CSV with default USD formatting
+            "AFG": { name: "Afghanistan", rate: 0.5, currency: "USD", locale: "en-US" },
+            "ALB": { name: "Albania", rate: 2.4, currency: "USD", locale: "en-US" },
+            "DZA": { name: "Algeria", rate: 1.43, currency: "USD", locale: "en-US" },
+            "AGO": { name: "Angola", rate: 19.73, currency: "USD", locale: "en-US" },
+            "ARG": { name: "Argentina", rate: 39.4, currency: "USD", locale: "en-US" },
+            "ARM": { name: "Armenia", rate: 3.9, currency: "USD", locale: "en-US" },
+            "BGD": { name: "Bangladesh", rate: 8.48, currency: "USD", locale: "en-US" },
+            "BOL": { name: "Bolivia", rate: 23.96, currency: "USD", locale: "en-US" },
+            "EGY": { name: "Egypt", rate: 14.9, currency: "USD", locale: "en-US" },
+            "HUN": { name: "Hungary", rate: 4.6, currency: "USD", locale: "en-US" },
+            "IRN": { name: "Iran", rate: 38.7, currency: "USD", locale: "en-US" },
+            "NGA": { name: "Nigeria", rate: 22.22, currency: "USD", locale: "en-US" },
+            "PAK": { name: "Pakistan", rate: 3.2, currency: "USD", locale: "en-US" },
+            "KEN": { name: "Kenya", rate: 3.8, currency: "USD", locale: "en-US" },
+            "MEX": { name: "Mexico", rate: 4.32, currency: "USD", locale: "en-US" },
+            "NPL": { name: "Nepal", rate: 2.72, currency: "USD", locale: "en-US" },
+            "NLD": { name: "Netherlands", rate: 3.1, currency: "USD", locale: "en-US" },
+            "NZL": { name: "New Zealand", rate: 2.7, currency: "USD", locale: "en-US" },
+            "NOR": { name: "Norway", rate: 3.0, currency: "USD", locale: "en-US" }
+        };
+
+        let currentLocale = "en-IN";
+        let currentCurrency = "INR";
+
+        // --- DOM Elements ---
+        const tabs = document.querySelectorAll('.tab-btn');
+        const pages = document.querySelectorAll('.calc-page');
+        
+        // SIP Elements
+        const sipAmountSlider = document.getElementById('sipAmountSlider');
+        const sipAmountNum = document.getElementById('sipAmountNum');
+        const sipReturnSlider = document.getElementById('sipReturnSlider');
+        const sipReturnNum = document.getElementById('sipReturnNum');
+        const sipYearsSlider = document.getElementById('sipYearsSlider');
+        const sipYearsNum = document.getElementById('sipYearsNum');
+        const sipCountry = document.getElementById('sipCountry');
+        const sipInflationRate = document.getElementById('sipInflationRate'); // Changed from Num
+        const sipInvested = document.getElementById('sipInvested');
+        const sipGains = document.getElementById('sipGains');
+        const sipFutureValue = document.getElementById('sipFutureValue');
+        const sipRealValue = document.getElementById('sipRealValue');
+        const sipChart = document.getElementById('sipChart');
+        const sipGainsPercent = document.getElementById('sipGainsPercent');
+        const inflationNoteSip = document.getElementById('inflation-note-sip');
+
+        // Lumpsum Elements
+        const lumpsumAmountSlider = document.getElementById('lumpsumAmountSlider');
+        const lumpsumAmountNum = document.getElementById('lumpsumAmountNum');
+        const lumpsumReturnSlider = document.getElementById('lumpsumReturnSlider');
+        const lumpsumReturnNum = document.getElementById('lumpsumReturnNum');
+        const lumpsumStartDate = document.getElementById('lumpsumStartDate');
+        const lumpsumEndDate = document.getElementById('lumpsumEndDate');
+        const lumpsumYearsText = document.getElementById('lumpsumYearsText');
+        const lumpsumCountry = document.getElementById('lumpsumCountry');
+        const lumpsumInflationRate = document.getElementById('lumpsumInflationRate'); // Changed from Num
+        const lumpsumInvested = document.getElementById('lumpsumInvested');
+        const lumpsumGains = document.getElementById('lumpsumGains');
+        const lumpsumFutureValue = document.getElementById('lumpsumFutureValue');
+        const lumpsumRealValue = document.getElementById('lumpsumRealValue');
+        const lumpsumChart = document.getElementById('lumpsumChart');
+        const lumpsumGainsPercent = document.getElementById('lumpsumGainsPercent');
+        const inflationNoteLumpsum = document.getElementById('inflation-note-lumpsum');
+        
+        // SWP Elements
+        const swpCorpusSlider = document.getElementById('swpCorpusSlider');
+        const swpCorpusNum = document.getElementById('swpCorpusNum');
+        const swpWithdrawalSlider = document.getElementById('swpWithdrawalSlider');
+        const swpWithdrawalNum = document.getElementById('swpWithdrawalNum');
+        const swpReturnSlider = document.getElementById('swpReturnSlider');
+        const swpReturnNum = document.getElementById('swpReturnNum');
+        const swpDuration = document.getElementById('swpDuration');
+        const swpInitialCorpus = document.getElementById('swpInitialCorpus');
+        const swpMonthlyAmount = document.getElementById('swpMonthlyAmount');
+        const swpTotalWithdrawn = document.getElementById('swpTotalWithdrawn');
+
+        // --- Data Loading Functions ---
+
+        /**
+         * Parses the CSV text and populates the global INFLATION_DATA object.
+         */
+        // REMOVED function parseCSV(text) { ... }
+
+        /**
+         * Fetches the inflation CSV file and parses it.
+         */
+        // REMOVED async function loadInflationData() { ... }
+
+        // --- Utility Functions ---
+
+        /**
+         * Formats a number as currency based on the current locale.
+         */
+        function formatCurrency(value) {
+            return new Intl.NumberFormat(currentLocale, {
+                style: 'currency',
+                currency: currentCurrency,
+                maximumFractionDigits: 0,
+                minimumFractionDigits: 0,
+            }).format(value);
+        }
+
+        /**
+         * Links a slider input with a number input.
+         */
+        function syncInputs(slider, numberInput) {
+            slider.addEventListener('input', (e) => {
+                numberInput.value = e.target.value;
+                recalculate();
+            });
+            numberInput.addEventListener('input', (e) => {
+                // Ensure value stays within slider min/max on manual input
+                let value = parseFloat(e.target.value);
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                if (value < min) value = min;
+                if (value > max) value = max;
+                if (isNaN(value)) value = min;
+                
+                slider.value = value;
+                // Update number input field in case value was capped
+                if (e.target.value !== value.toString()) {
+                   e.target.value = value;
+                }
+                recalculate();
+            });
+             numberInput.addEventListener('blur', (e) => {
+                // Handle empty input on blur
+                if(e.target.value === '') {
+                    e.target.value = slider.min;
+                    slider.value = slider.min;
+                    recalculate();
+                }
+            });
+        }
+        
+        /**
+         * Populates country dropdowns and sets inflation.
+         */
+        function populateCountries() {
+            const selects = [sipCountry, lumpsumCountry];
+            selects.forEach(select => {
+                if (!select) return;
+                select.innerHTML = '';
+                // Sort countries alphabetically by name
+                const sortedCountries = Object.entries(INFLATION_DATA).sort(([, a], [, b]) => a.name.localeCompare(b.name));
+
+                for (const [code, data] of sortedCountries) {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = data.name;
+                    select.appendChild(option);
+                }
+                
+                // Default to India (IN) if it exists, otherwise first in list
+                if (INFLATION_DATA['IN']) {
+                    select.value = 'IN';
+                } else if (sortedCountries.length > 0) {
+                    select.value = sortedCountries[0][0]; // [0] is code
+                }
+
+                select.addEventListener('change', (e) => {
+                    const countryCode = e.target.value;
+                    const countryData = INFLATION_DATA[countryCode];
+                    
+                    currentLocale = countryData.locale;
+                    currentCurrency = countryData.currency;
+                    
+                    // Update the correct inflation rate display
+                    if (select.id === 'sipCountry') {
+                        sipInflationRate.textContent = countryData.rate.toFixed(1);
+                    } else if (select.id === 'lumpsumCountry') {
+                        lumpsumInflationRate.textContent = countryData.rate.toFixed(1);
+                    }
+                    recalculate();
+                });
+            });
+
+            // Set initial values from default selection
+            const initialData = INFLATION_DATA[sipCountry.value] || { rate: 0, locale: 'en-US', currency: 'USD' };
+            currentLocale = initialData.locale;
+            currentCurrency = initialData.currency;
+            sipInflationRate.textContent = initialData.rate.toFixed(1);
+            lumpsumInflationRate.textContent = initialData.rate.toFixed(1);
+        }
+        
+        /**
+         * Sets default dates for the Lumpsum calculator.
+         */
+        function setDefaultDates() {
+            const today = new Date();
+            const future = new Date();
+            future.setFullYear(today.getFullYear() + 10);
+
+            lumpsumStartDate.value = today.toISOString().split('T')[0];
+            lumpsumEndDate.value = future.toISOString().split('T')[0];
+        }
+
+        // --- Calculation Functions ---
+
+        /**
+         * Calculates SIP values.
+         */
+        function calculateSIP() {
+            const P = parseFloat(sipAmountNum.value);
+            const r_annual = parseFloat(sipReturnNum.value) / 100;
+            const r_monthly = r_annual / 12;
+            const t_years = parseInt(sipYearsNum.value);
+            const n = t_years * 12;
+            
+            // Get inflation from the selected country
+            const countryCode = sipCountry.value;
+            const i_annual = (INFLATION_DATA[countryCode] ? INFLATION_DATA[countryCode].rate : 0) / 100;
+
+            // Future Value (M) = P * [((1 + r)^n - 1) / r] * (1 + r)
+            const M = P * (Math.pow(1 + r_monthly, n) - 1) / r_monthly * (1 + r_monthly);
+            
+            const invested = P * n;
+            const gains = M - invested;
+            
+            // Real Value (Present Value of M) = M / (1 + i)^t
+            const realValue = M / Math.pow(1 + i_annual, t_years);
+
+            // Update DOM
+            sipInvested.textContent = formatCurrency(invested);
+            sipGains.textContent = formatCurrency(gains);
+            sipFutureValue.textContent = formatCurrency(M);
+            sipRealValue.textContent = formatCurrency(realValue);
+
+            // Update Chart
+            const gainsPerc = (M > 0) ? (gains / M) * 100 : 0;
+            const investedPerc = (M > 0) ? (invested / M) * 100 : 0;
+            const gainsDeg = (gainsPerc / 100) * 360;
+
+            sipChart.style.background = `conic-gradient(
+                #3b82f6 0deg ${investedPerc * 3.6}deg,
+                #10b981 ${investedPerc * 3.6}deg 360deg
+            )`;
+            sipGainsPercent.textContent = `${gainsPerc.toFixed(1)}%`;
+            
+            // Update Note
+            inflationNoteSip.innerHTML = `<strong>Client Note:</strong> Your future value of <strong>${formatCurrency(M)}</strong> in ${t_years} years will have the purchasing power of <strong>${formatCurrency(realValue)}</strong> today, assuming an average inflation of ${(i_annual * 100).toFixed(1)}%. This is why today's 1 Crore is not the same as 1 Crore in 10 years.`;
+        }
+        
+        /**
+         * Calculates Lumpsum values.
+         */
+        function calculateLumpsum() {
+            const P = parseFloat(lumpsumAmountNum.value);
+            const r_annual = parseFloat(lumpsumReturnNum.value) / 100;
+            
+            // Get inflation from the selected country
+            const countryCode = lumpsumCountry.value;
+            const i_annual = (INFLATION_DATA[countryCode] ? INFLATION_DATA[countryCode].rate : 0) / 100;
+
+            const startDate = new Date(lumpsumStartDate.value);
+            const endDate = new Date(lumpsumEndDate.value);
+            
+            if (endDate <= startDate) {
+                lumpsumYearsText.textContent = "End date must be after start date";
+                return;
+            }
+
+            const t_years = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+            lumpsumYearsText.textContent = `${t_years.toFixed(2)} Years`;
+
+            // Future Value (M) = P * (1 + r)^t
+            const M = P * Math.pow(1 + r_annual, t_years);
+            const invested = P;
+            const gains = M - invested;
+
+            // Real Value (Present Value of M) = M / (1 + i)^t
+            const realValue = M / Math.pow(1 + i_annual, t_years);
+
+            // Update DOM
+            lumpsumInvested.textContent = formatCurrency(invested);
+            lumpsumGains.textContent = formatCurrency(gains);
+            lumpsumFutureValue.textContent = formatCurrency(M);
+            lumpsumRealValue.textContent = formatCurrency(realValue);
+
+            // Update Chart
+            const gainsPerc = (M > 0) ? (gains / M) * 100 : 0;
+            const investedPerc = (M > 0) ? (invested / M) * 100 : 0;
+
+            lumpsumChart.style.background = `conic-gradient(
+                #3b82f6 0deg ${investedPerc * 3.6}deg,
+                #10b981 ${investedPerc * 3.6}deg 360deg
+            )`;
+            lumpsumGainsPercent.textContent = `${gainsPerc.toFixed(1)}%`;
+            
+            // Update Note
+            inflationNoteLumpsum.innerHTML = `<strong>Client Note:</strong> Your 'Date End Value' of <strong>${formatCurrency(M)}</strong> in ${t_years.toFixed(1)} years will have the purchasing power of <strong>${formatCurrency(realValue)}</strong> today, assuming ${(i_annual * 100).toFixed(1)}% inflation.`;
+        }
+        
+        /**
+         * Calculates SWP values.
+         */
+        function calculateSWP() {
+            const C = parseFloat(swpCorpusNum.value);
+            const W = parseFloat(swpWithdrawalNum.value);
+            const r_annual = parseFloat(swpReturnNum.value) / 100;
+            const r_monthly = r_annual / 12;
+
+            let n_months = 0;
+            
+            // Check if withdrawal is less than monthly interest (corpus lasts forever)
+            if (W <= C * r_monthly) {
+                swpDuration.textContent = "Forever (Perpetuity)";
+                swpTotalWithdrawn.textContent = "Infinite";
+            } else {
+                // n = -log(1 - (C * r) / W) / log(1 + r)
+                n_months = -(Math.log(1 - (C * r_monthly) / W)) / Math.log(1 + r_monthly);
+                
+                if (isNaN(n_months) || n_months <= 0) {
+                    swpDuration.textContent = "0 Months";
+                    swpTotalWithdrawn.textContent = formatCurrency(0);
+                } else {
+                    const years = Math.floor(n_months / 12);
+                    const months = Math.floor(n_months % 12);
+                    swpDuration.textContent = `${years} Years, ${months} Months`;
+                    swpTotalWithdrawn.textContent = formatCurrency(W * n_months);
+                }
+            }
+
+            // Update DOM
+            swpInitialCorpus.textContent = formatCurrency(C);
+            swpMonthlyAmount.textContent = formatCurrency(W);
+        }
+
+        // --- Event Handlers ---
+
+        /**
+         * Main recalculate function router.
+         */
+        function recalculate() {
+            const activePage = document.querySelector('.calc-page:not(.hidden)').id;
+            switch (activePage) {
+                case 'sip-calc':
+                    calculateSIP();
+                    break;
+                case 'lumpsum-calc':
+                    calculateLumpsum();
+                    break;
+                case 'swp-calc':
+                    calculateSWP();
+                    break;
+            }
+        }
+        
+        /**
+         * Handles tab switching.
+         */
+        function switchTab(targetId) {
+            pages.forEach(page => {
+                page.classList.toggle('hidden', page.id !== targetId);
+            });
+            tabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.target === targetId);
+                tab.classList.toggle('text-gray-400', tab.dataset.target !== targetId);
+                tab.classList.toggle('hover:text-white', tab.dataset.target !== targetId);
+            });
+            recalculate();
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.target));
+        });
+
+        // --- Initialization ---
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // MUST load data first
+            // await loadInflationData(); // REMOVED
+
+            // NOW we can populate countries (which depends on the data)
+            populateCountries();
+            
+            // Set default dates
+            setDefaultDates();
+
+            // Sync all inputs
+            syncInputs(sipAmountSlider, sipAmountNum);
+            syncInputs(sipReturnSlider, sipReturnNum);
+            syncInputs(sipYearsSlider, sipYearsNum);
+            
+            syncInputs(lumpsumAmountSlider, lumpsumAmountNum);
+            syncInputs(lumpsumReturnSlider, lumpsumReturnNum);
+            
+            syncInputs(swpCorpusSlider, swpCorpusNum);
+            syncInputs(swpWithdrawalSlider, swpWithdrawalNum);
+            syncInputs(swpReturnSlider, swpReturnNum);
+
+            // Add listeners to all other inputs that trigger recalculation
+            const allInputs = document.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+                if (input.type !== 'range' && input.type !== 'number' && input.type !== 'select-one') {
+                    input.addEventListener('change', recalculate);
+                }
+                // Recalculate on date change
+                if (input.type === 'date') {
+                     input.addEventListener('input', recalculate);
+                }
+            });
+            
+            // Initial Calculation
+            switchTab('sip-calc');
+        });
+
+    </script>
+</body>
+</html>

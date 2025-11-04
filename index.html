@@ -45,6 +45,16 @@
         input[type="range"]:hover::-moz-range-thumb {
             background: #2563eb;
         }
+        
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
 
         /* Custom active tab style */
         .tab-btn.active {
@@ -142,28 +152,32 @@
                     <!-- Monthly Investment -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="sipAmount" class="text-sm font-medium text-gray-300">Monthly Investment</label>
-                            <input type="number" id="sipAmountNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10000">
+                            <label for="sipAmountNum" class="text-sm font-medium text-gray-300">Monthly Investment</label>
+                            <input type="number" id="sipAmountNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10000" min="1">
                         </div>
-                        <input type="range" id="sipAmountSlider" min="500" max="100000" step="500" value="10000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="sipAmountSlider" min="100" max="500000" step="100" value="10000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
 
                     <!-- Expected Return -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="sipReturn" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
-                            <input type="number" id="sipReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="12" min="1" max="30" step="0.5">
-                            <span class="text-gray-400 text-sm ml-2">%</span>
+                            <label for="sipReturnNum" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
+                            <div class="flex items-center">
+                                <input type="number" id="sipReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="12" min="0" max="30" step="0.5">
+                                <span class="text-gray-400 text-sm ml-2">%</span>
+                            </div>
                         </div>
-                        <input type="range" id="sipReturnSlider" min="1" max="30" step="0.5" value="12" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="sipReturnSlider" min="0" max="30" step="0.5" value="12" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
 
                     <!-- Investment Period -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="sipYears" class="text-sm font-medium text-gray-300">Investment Period</label>
-                            <input type="number" id="sipYearsNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10" min="1" max="40">
-                            <span class="text-gray-400 text-sm ml-2">Yrs</span>
+                            <label for="sipYearsNum" class="text-sm font-medium text-gray-300">Investment Period</label>
+                             <div class="flex items-center">
+                                <input type="number" id="sipYearsNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10" min="1" max="40">
+                                <span class="text-gray-400 text-sm ml-2">Yrs</span>
+                            </div>
                         </div>
                         <input type="range" id="sipYearsSlider" min="1" max="40" step="1" value="10" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
@@ -264,20 +278,22 @@
                     <!-- Principal Amount -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="lumpsumAmount" class="text-sm font-medium text-gray-300">Principal Amount</label>
-                            <input type="number" id="lumpsumAmountNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="1000000">
+                            <label for="lumpsumAmountNum" class="text-sm font-medium text-gray-300">Principal Amount</label>
+                            <input type="number" id="lumpsumAmountNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="1000000" min="1">
                         </div>
-                        <input type="range" id="lumpsumAmountSlider" min="10000" max="10000000" step="10000" value="1000000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="lumpsumAmountSlider" min="1000" max="50000000" step="1000" value="1000000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
 
                     <!-- Expected Return -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="lumpsumReturn" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
-                            <input type="number" id="lumpsumReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="12" min="1" max="30" step="0.5">
-                            <span class="text-gray-400 text-sm ml-2">%</span>
+                            <label for="lumpsumReturnNum" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
+                            <div class="flex items-center">
+                                <input type="number" id="lumpsumReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="12" min="0" max="30" step="0.5">
+                                <span class="text-gray-400 text-sm ml-2">%</span>
+                            </div>
                         </div>
-                        <input type="range" id="lumpsumReturnSlider" min="1" max="30" step="0.5" value="12" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="lumpsumReturnSlider" min="0" max="30" step="0.5" value="12" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
 
                     <!-- Dates -->
@@ -382,29 +398,31 @@
                     <!-- Total Investment (Corpus) -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="swpCorpus" class="text-sm font-medium text-gray-300">Total Investment (Corpus)</label>
-                            <input type="number" id="swpCorpusNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10000000">
+                            <label for="swpCorpusNum" class="text-sm font-medium text-gray-300">Total Investment (Corpus)</label>
+                            <input type="number" id="swpCorpusNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="10000000" min="1">
                         </div>
-                        <input type="range" id="swpCorpusSlider" min="100000" max="100000000" step="100000" value="10000000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="swpCorpusSlider" min="10000" max="100000000" step="10000" value="10000000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
 
                     <!-- Monthly Withdrawal -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="swpWithdrawal" class="text-sm font-medium text-gray-300">Monthly Withdrawal</label>
-                            <input type="number" id="swpWithdrawalNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="50000">
+                            <label for="swpWithdrawalNum" class="text-sm font-medium text-gray-300">Monthly Withdrawal</label>
+                            <input type="number" id="swpWithdrawalNum" class="w-28 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="50000" min="1">
                         </div>
-                        <input type="range" id="swpWithdrawalSlider" min="1000" max="500000" step="1000" value="50000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="swpWithdrawalSlider" min="100" max="500000" step="100" value="50000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
 
                     <!-- Expected Return -->
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-1">
-                            <label for="swpReturn" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
-                            <input type="number" id="swpReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="8" min="1" max="20" step="0.5">
-                            <span class="text-gray-400 text-sm ml-2">%</span>
+                            <label for="swpReturnNum" class="text-sm font-medium text-gray-300">Expected Return (p.a.)</label>
+                            <div class="flex items-center">
+                                <input type="number" id="swpReturnNum" class="w-20 bg-gray-800 text-white text-sm rounded-md border-gray-700 p-1.5 text-right" value="8" min="0" max="20" step="0.5">
+                                <span class="text-gray-400 text-sm ml-2">%</span>
+                            </div>
                         </div>
-                        <input type="range" id="swpReturnSlider" min="1" max="20" step="0.5" value="8" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="swpReturnSlider" min="0" max="20" step="0.5" value="8" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
                     </div>
                 </div>
 
@@ -445,24 +463,17 @@
     <script>
         // --- Constants & Data ---
 
-        // This object maps CSV country names to metadata (currency, locale, code)
-        // This is necessary because the CSV only provides the inflation rate.
-        // const countryMetadata = { ... }; // REMOVED
-
-        // This will be populated by fetching the CSV
-        // let INFLATION_DATA = {}; // REMOVED
-
         // NEW: Hard-coded inflation data, combining CSV rates with formatting metadata
         const INFLATION_DATA = {
             "IN": { name: "India (IN)", rate: 2.1, currency: "INR", locale: "en-IN" },
-            "US": { name: "United States (US)", rate: 3.5, currency: "USD", locale: "en-US" }, // Rate from original file, not in snippet
-            "GB": { name: "United Kingdom (GB)", rate: 4.0, currency: "GBP", locale: "en-GB" }, // Rate from original file, not in snippet
+            "US": { name: "United States (US)", rate: 3.5, currency: "USD", locale: "en-US" },
+            "GB": { name: "United Kingdom (GB)", rate: 4.0, currency: "GBP", locale: "en-GB" },
             "CA": { name: "Canada (CA)", rate: 1.9, currency: "CAD", locale: "en-CA" },
             "AU": { name: "Australia (AU)", rate: 2.4, currency: "AUD", locale: "en-AU" },
-            "DE": { name: "Germany (DE)", rate: 5.0, currency: "EUR", locale: "de-DE" }, // Rate from original file, not in snippet
+            "DE": { name: "Germany (DE)", rate: 5.0, currency: "EUR", locale: "de-DE" },
             "JP": { name: "Japan (JP)", rate: 3.3, currency: "JPY", locale: "ja-JP" },
             "CN": { name: "China (CN)", rate: 0.1, currency: "CNY", locale: "zh-CN" },
-            "ZA": { name: "South Africa (ZA)", rate: 5.5, currency: "ZAR", locale: "en-ZA" }, // Rate from original file, not in snippet
+            "ZA": { name: "South Africa (ZA)", rate: 5.5, currency: "ZAR", locale: "en-ZA" },
             "BR": { name: "Brazil (BR)", rate: 5.35, currency: "BRL", locale: "pt-BR" },
             
             // Adding other countries from CSV with default USD formatting
@@ -487,8 +498,7 @@
             "NOR": { name: "Norway", rate: 3.0, currency: "USD", locale: "en-US" }
         };
 
-        let currentLocale = "en-IN";
-        let currentCurrency = "INR";
+        // REMOVED global currency/locale variables
 
         // --- DOM Elements ---
         const tabs = document.querySelectorAll('.tab-btn');
@@ -541,27 +551,17 @@
         const swpMonthlyAmount = document.getElementById('swpMonthlyAmount');
         const swpTotalWithdrawn = document.getElementById('swpTotalWithdrawn');
 
-        // --- Data Loading Functions ---
-
-        /**
-         * Parses the CSV text and populates the global INFLATION_DATA object.
-         */
-        // REMOVED function parseCSV(text) { ... }
-
-        /**
-         * Fetches the inflation CSV file and parses it.
-         */
-        // REMOVED async function loadInflationData() { ... }
 
         // --- Utility Functions ---
 
         /**
-         * Formats a number as currency based on the current locale.
+         * Formats a number as currency based on the provided country data.
          */
-        function formatCurrency(value) {
-            return new Intl.NumberFormat(currentLocale, {
+        function formatCurrency(value, countryData) {
+            const { locale, currency } = countryData || { locale: 'en-US', currency: 'USD' };
+            return new Intl.NumberFormat(locale, {
                 style: 'currency',
-                currency: currentCurrency,
+                currency: currency,
                 maximumFractionDigits: 0,
                 minimumFractionDigits: 0,
             }).format(value);
@@ -569,35 +569,44 @@
 
         /**
          * Links a slider input with a number input.
+         * BUG 2 & 3 FIX: Changed logic to validate on 'blur' not 'input'.
          */
         function syncInputs(slider, numberInput) {
             slider.addEventListener('input', (e) => {
                 numberInput.value = e.target.value;
                 recalculate();
             });
+
+            // Only update slider if the number is valid, don't block typing
             numberInput.addEventListener('input', (e) => {
-                // Ensure value stays within slider min/max on manual input
+                const value = parseFloat(e.target.value);
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                
+                if (!isNaN(value) && value >= min && value <= max) {
+                    slider.value = value;
+                    recalculate();
+                }
+            });
+
+            // Validate and correct the value when the user clicks away
+            numberInput.addEventListener('blur', (e) => {
                 let value = parseFloat(e.target.value);
                 const min = parseFloat(slider.min);
                 const max = parseFloat(slider.max);
-                if (value < min) value = min;
-                if (value > max) value = max;
-                if (isNaN(value)) value = min;
+
+                if (isNaN(value) || value < min) {
+                    value = min;
+                }
+                if (value > max) {
+                    value = max;
+                }
                 
+                // Update the input field to the corrected value
+                e.target.value = value;
+                // Sync the slider to the corrected value
                 slider.value = value;
-                // Update number input field in case value was capped
-                if (e.target.value !== value.toString()) {
-                   e.target.value = value;
-                }
                 recalculate();
-            });
-             numberInput.addEventListener('blur', (e) => {
-                // Handle empty input on blur
-                if(e.target.value === '') {
-                    e.target.value = slider.min;
-                    slider.value = slider.min;
-                    recalculate();
-                }
             });
         }
         
@@ -626,12 +635,11 @@
                     select.value = sortedCountries[0][0]; // [0] is code
                 }
 
+                // BUG 1 FIX: Listener now just updates its own tab's inflation
+                // and triggers a recalculate.
                 select.addEventListener('change', (e) => {
                     const countryCode = e.target.value;
                     const countryData = INFLATION_DATA[countryCode];
-                    
-                    currentLocale = countryData.locale;
-                    currentCurrency = countryData.currency;
                     
                     // Update the correct inflation rate display
                     if (select.id === 'sipCountry') {
@@ -645,8 +653,6 @@
 
             // Set initial values from default selection
             const initialData = INFLATION_DATA[sipCountry.value] || { rate: 0, locale: 'en-US', currency: 'USD' };
-            currentLocale = initialData.locale;
-            currentCurrency = initialData.currency;
             sipInflationRate.textContent = initialData.rate.toFixed(1);
             lumpsumInflationRate.textContent = initialData.rate.toFixed(1);
         }
@@ -667,8 +673,9 @@
 
         /**
          * Calculates SIP values.
+         * BUG 1 FIX: Accepts countryData for formatting.
          */
-        function calculateSIP() {
+        function calculateSIP(countryData) {
             const P = parseFloat(sipAmountNum.value);
             const r_annual = parseFloat(sipReturnNum.value) / 100;
             const r_monthly = r_annual / 12;
@@ -676,8 +683,7 @@
             const n = t_years * 12;
             
             // Get inflation from the selected country
-            const countryCode = sipCountry.value;
-            const i_annual = (INFLATION_DATA[countryCode] ? INFLATION_DATA[countryCode].rate : 0) / 100;
+            const i_annual = (countryData.rate || 0) / 100;
 
             // Future Value (M) = P * [((1 + r)^n - 1) / r] * (1 + r)
             const M = P * (Math.pow(1 + r_monthly, n) - 1) / r_monthly * (1 + r_monthly);
@@ -688,11 +694,11 @@
             // Real Value (Present Value of M) = M / (1 + i)^t
             const realValue = M / Math.pow(1 + i_annual, t_years);
 
-            // Update DOM
-            sipInvested.textContent = formatCurrency(invested);
-            sipGains.textContent = formatCurrency(gains);
-            sipFutureValue.textContent = formatCurrency(M);
-            sipRealValue.textContent = formatCurrency(realValue);
+            // Update DOM using country-specific formatting
+            sipInvested.textContent = formatCurrency(invested, countryData);
+            sipGains.textContent = formatCurrency(gains, countryData);
+            sipFutureValue.textContent = formatCurrency(M, countryData);
+            sipRealValue.textContent = formatCurrency(realValue, countryData);
 
             // Update Chart
             const gainsPerc = (M > 0) ? (gains / M) * 100 : 0;
@@ -706,19 +712,19 @@
             sipGainsPercent.textContent = `${gainsPerc.toFixed(1)}%`;
             
             // Update Note
-            inflationNoteSip.innerHTML = `<strong>Client Note:</strong> Your future value of <strong>${formatCurrency(M)}</strong> in ${t_years} years will have the purchasing power of <strong>${formatCurrency(realValue)}</strong> today, assuming an average inflation of ${(i_annual * 100).toFixed(1)}%. This is why today's 1 Crore is not the same as 1 Crore in 10 years.`;
+            inflationNoteSip.innerHTML = `<strong>Client Note:</strong> Your future value of <strong>${formatCurrency(M, countryData)}</strong> in ${t_years} years will have the purchasing power of <strong>${formatCurrency(realValue, countryData)}</strong> today, assuming an average inflation of ${(i_annual * 100).toFixed(1)}%. This is why today's 1 Crore is not the same as 1 Crore in 10 years.`;
         }
         
         /**
          * Calculates Lumpsum values.
+         * BUG 1 FIX: Accepts countryData for formatting.
          */
-        function calculateLumpsum() {
+        function calculateLumpsum(countryData) {
             const P = parseFloat(lumpsumAmountNum.value);
             const r_annual = parseFloat(lumpsumReturnNum.value) / 100;
             
             // Get inflation from the selected country
-            const countryCode = lumpsumCountry.value;
-            const i_annual = (INFLATION_DATA[countryCode] ? INFLATION_DATA[countryCode].rate : 0) / 100;
+            const i_annual = (countryData.rate || 0) / 100;
 
             const startDate = new Date(lumpsumStartDate.value);
             const endDate = new Date(lumpsumEndDate.value);
@@ -740,10 +746,10 @@
             const realValue = M / Math.pow(1 + i_annual, t_years);
 
             // Update DOM
-            lumpsumInvested.textContent = formatCurrency(invested);
-            lumpsumGains.textContent = formatCurrency(gains);
-            lumpsumFutureValue.textContent = formatCurrency(M);
-            lumpsumRealValue.textContent = formatCurrency(realValue);
+            lumpsumInvested.textContent = formatCurrency(invested, countryData);
+            lumpsumGains.textContent = formatCurrency(gains, countryData);
+            lumpsumFutureValue.textContent = formatCurrency(M, countryData);
+            lumpsumRealValue.textContent = formatCurrency(realValue, countryData);
 
             // Update Chart
             const gainsPerc = (M > 0) ? (gains / M) * 100 : 0;
@@ -756,19 +762,21 @@
             lumpsumGainsPercent.textContent = `${gainsPerc.toFixed(1)}%`;
             
             // Update Note
-            inflationNoteLumpsum.innerHTML = `<strong>Client Note:</strong> Your 'Date End Value' of <strong>${formatCurrency(M)}</strong> in ${t_years.toFixed(1)} years will have the purchasing power of <strong>${formatCurrency(realValue)}</strong> today, assuming ${(i_annual * 100).toFixed(1)}% inflation.`;
+            inflationNoteLumpsum.innerHTML = `<strong>Client Note:</strong> Your 'Date End Value' of <strong>${formatCurrency(M, countryData)}</strong> in ${t_years.toFixed(1)} years will have the purchasing power of <strong>${formatCurrency(realValue, countryData)}</strong> today, assuming ${(i_annual * 100).toFixed(1)}% inflation.`;
         }
         
         /**
          * Calculates SWP values.
+         * BUG 1 & 4 FIX: Accepts countryData for formatting.
          */
-        function calculateSWP() {
+        function calculateSWP(countryData) {
             const C = parseFloat(swpCorpusNum.value);
             const W = parseFloat(swpWithdrawalNum.value);
             const r_annual = parseFloat(swpReturnNum.value) / 100;
             const r_monthly = r_annual / 12;
 
             let n_months = 0;
+            let totalWithdrawn = 0;
             
             // Check if withdrawal is less than monthly interest (corpus lasts forever)
             if (W <= C * r_monthly) {
@@ -780,36 +788,49 @@
                 
                 if (isNaN(n_months) || n_months <= 0) {
                     swpDuration.textContent = "0 Months";
-                    swpTotalWithdrawn.textContent = formatCurrency(0);
+                    totalWithdrawn = 0;
                 } else {
                     const years = Math.floor(n_months / 12);
                     const months = Math.floor(n_months % 12);
                     swpDuration.textContent = `${years} Years, ${months} Months`;
-                    swpTotalWithdrawn.textContent = formatCurrency(W * n_months);
+                    totalWithdrawn = W * n_months;
                 }
+                swpTotalWithdrawn.textContent = formatCurrency(totalWithdrawn, countryData);
             }
 
             // Update DOM
-            swpInitialCorpus.textContent = formatCurrency(C);
-            swpMonthlyAmount.textContent = formatCurrency(W);
+            swpInitialCorpus.textContent = formatCurrency(C, countryData);
+            swpMonthlyAmount.textContent = formatCurrency(W, countryData);
         }
 
         // --- Event Handlers ---
 
         /**
          * Main recalculate function router.
+         * BUG 1 FIX: Now gets countryData based on active tab
+         * and passes it to calculation functions.
          */
         function recalculate() {
             const activePage = document.querySelector('.calc-page:not(.hidden)').id;
+            let countryCode;
+            let countryData;
+
             switch (activePage) {
                 case 'sip-calc':
-                    calculateSIP();
+                    countryCode = sipCountry.value;
+                    countryData = INFLATION_DATA[countryCode] || INFLATION_DATA['IN'];
+                    calculateSIP(countryData);
                     break;
                 case 'lumpsum-calc':
-                    calculateLumpsum();
+                    countryCode = lumpsumCountry.value;
+                    countryData = INFLATION_DATA[countryCode] || INFLATION_DATA['IN'];
+                    calculateLumpsum(countryData);
                     break;
                 case 'swp-calc':
-                    calculateSWP();
+                    // BUG 4 FIX: SWP borrows its currency from the SIP tab
+                    countryCode = sipCountry.value; 
+                    countryData = INFLATION_DATA[countryCode] || INFLATION_DATA['IN'];
+                    calculateSWP(countryData);
                     break;
             }
         }
@@ -835,10 +856,7 @@
 
         // --- Initialization ---
         
-        document.addEventListener('DOMContentLoaded', async () => {
-            // MUST load data first
-            // await loadInflationData(); // REMOVED
-
+        document.addEventListener('DOMContentLoaded', () => {
             // NOW we can populate countries (which depends on the data)
             populateCountries();
             
@@ -858,11 +876,9 @@
             syncInputs(swpReturnSlider, swpReturnNum);
 
             // Add listeners to all other inputs that trigger recalculation
+            // (Namely, the date inputs)
             const allInputs = document.querySelectorAll('input, select');
             allInputs.forEach(input => {
-                if (input.type !== 'range' && input.type !== 'number' && input.type !== 'select-one') {
-                    input.addEventListener('change', recalculate);
-                }
                 // Recalculate on date change
                 if (input.type === 'date') {
                      input.addEventListener('input', recalculate);
@@ -876,3 +892,5 @@
     </script>
 </body>
 </html>
+
+   
